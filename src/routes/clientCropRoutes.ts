@@ -48,7 +48,8 @@ router.post(
         !cropData.area ||
         !cropData.yield ||
         !cropData.plantingDate ||
-        !cropData.harvestDate
+        !cropData.harvestDate ||
+        !cropData.stage 
       ) {
         return res.status(400).json({ message: "Missing crop fields" });
       }

@@ -72,15 +72,16 @@ router.post(
         return res.status(404).json({ message: "Farm not found" });
       }
 
-      const farmHealth = new FarmHealth({
+      // Create new FarmHealth document
+      const newFarmHealth = new FarmHealth({
         farmId,
         pestPressure,
         nutrientStatus,
         diseaseRisk,
       });
-
-      const savedFarmHealth = await farmHealth.save();
-      res.status(201).json(savedFarmHealth);
+      const savedFarmHealth = await newFarmHealth.save();
+      const populatedFarmHealth = await savedFarmHealth.populate("farmId"); // <- This line is key
+      res.status(201).json(populatedFarmHealth.toJSON());
     } catch (error) {
       console.error("❌ Error creating farm health data:", error);
       res.status(400).json({ message: "Error creating farm health data" });

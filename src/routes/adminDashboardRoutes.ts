@@ -28,24 +28,41 @@ router.get("/", protect, adminOnly, async (req: Request, res: Response) => {
 
 router.post("/", protect, adminOnly, async (req, res) => {
   try {
-    const { userId } = req.params;
-    const { farmId, charts, weather, soil, upcomingTasks, image } = req.body;
+    const { userId, farmId, charts, weather, soil, upcomingTasks, image } =
+      req.body;
+
+    if (!userId || !farmId) {
+      return res
+        .status(400)
+        .json({ message: "userId and farmId are required" });
+    }
 
     const dashboard = new Dashboard({
       userId,
       farmId,
-      charts,
-      weather,
-      soil,
-      upcomingTasks,
-      image,
+      charts: {
+        rh: charts?.rh || [],
+        temp: charts?.temp || [],
+        rainfall: charts?.rainfall || [],
+      },
+      weather: {
+        forecast: weather?.forecast || "",
+        temperature: weather?.temperature || "",
+        humidity: weather?.humidity || "",
+      },
+      soil: {
+        pH: soil?.pH || 0,
+        moisture: soil?.moisture || "",
+      },
+      upcomingTasks: upcomingTasks || [],
+      image: image || "",
     });
 
     const createdDashboard = await dashboard.save();
 
     res.status(201).json(createdDashboard);
   } catch (error) {
-    console.error(error);
+    console.error("Dashboard creation error:", error);
     res
       .status(500)
       .json({ message: "Server Error while creating dashboard entry" });
